@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+
+import spock.lang.Ignore
 import spock.lang.Specification
 
 class Publisher {
@@ -33,9 +35,16 @@ interface Subscriber {
 }
 
 class PublisherSpec extends Specification {
-  def pub = new Publisher()
-  def sub1 = Mock(Subscriber)
-  def sub2 = Mock(Subscriber)
+  def pub
+  def sub1
+  def sub2
+
+  def setup(){
+    pub = new Publisher()
+    sub1 = Mock(Subscriber)
+    sub2 = Mock(Subscriber)
+  }
+
 
 //  def setup() {
 //    pub.subscribers << sub1 << sub2
@@ -68,5 +77,20 @@ class PublisherSpec extends Specification {
     then:
     1 * sub2.receive("event1")
     1 * sub2.receive("event2")
+  }
+
+/*  This test shows that Spock, internally, runs interactions
+    in the then: block before the when: block AND before any
+    variable assignment or regular method() call regardless
+    of order
+  */
+  @Ignore
+  def "spock runs the then: interaction before its when:"(){
+    when:
+    pub.send("hello")
+
+    then:
+    def message = "hello"
+    1 * sub1.receive(message)
   }
 }
