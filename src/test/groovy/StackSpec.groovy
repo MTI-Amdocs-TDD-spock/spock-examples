@@ -17,29 +17,43 @@
 import spock.lang.Specification
 
 class EmptyStackSpec extends Specification {
-  def stack = new Stack()
+  def stack
+
+  def setup() {
+    stack = new Stack()
+  }
+
 
   def "size"() {
     expect: stack.size() == 0
   }
 
-  def "pop"() {
+  def "when stack is empty #pop throws EmptyStackException "() {
     when: stack.pop()
     then: thrown(EmptyStackException)
   }
 
-  def "peek"() {
-    when: stack.peek()
-    then: thrown(EmptyStackException)
+
+  def "given stack calss peek when empty"() {
+
+    when: "stack calls peek()"
+    stack.peek()
+
+    then: "throw an exeption EmptyStackException"
+    thrown(EmptyStackException)
   }
 
-  def "push"() {
+  def "given a stack push method increases stack size by 1"() {
     when:
     stack.push("elem")
 
     then:
     stack.size() == old(stack.size()) + 1
     stack.peek() == "elem"
+
+
+    "When stack pushes element then stack size should increase by 1" +
+            "and stack peek will be 'elemt'"
   }
 }
 

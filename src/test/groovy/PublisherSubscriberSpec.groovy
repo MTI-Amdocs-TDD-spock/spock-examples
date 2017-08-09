@@ -37,20 +37,28 @@ class PublisherSpec extends Specification {
   def sub1 = Mock(Subscriber)
   def sub2 = Mock(Subscriber)
 
-  def setup() {
-    pub.subscribers << sub1 << sub2
-  }
+//  def setup() {
+//    pub.subscribers << sub1 << sub2
+//  }
 
   def "delivers events to all subscribers"() {
+    given:
+    pub.subscribers << sub1 << sub2
+
     when:
     pub.send("event")
 
     then:
     1 * sub1.receive("event")
     1 * sub2.receive("event")
+
+    cleanup:
+    pub.subscribers = []
   }
 
   def "can cope with misbehaving subscribers"() {
+    given:
+    pub.subscribers << sub1 << sub2
     sub1.receive(_) >> { throw new Exception() }
 
     when:
