@@ -63,11 +63,11 @@ class PublisherSpec extends Specification {
     pub.subscribers << sub1 << sub2
 
     when:
-    pub.send("event22")
+    pub.send("event")
 
     then:
-    1 * sub1.receive("event22")
-    1 * sub2.receive("ff")
+    1 * sub1.receive("event")
+    1 * sub2.receive("event")
 
     cleanup:
     pub.subscribers = []
@@ -105,21 +105,24 @@ class PublisherSpec extends Specification {
     pub.send("hello")
 
     then:
-    interaction {
-      def message1 = "hello"
-      1 * sub1.receive(message1)
-    }
+    def message1 = "hello"
+    1 * sub1.receive(message1)
+//    interaction {
+//      def message1 = "hello"
+//      1 * sub1.receive(message1)
+//    }
   }
 
  // Stubbing example. See how it doesn't use a real object since it
   // returns null not the string we expect i.e 'not ok'
   def "Mock stubbed method is not called on the implementation of a class"(){
+
     given:"A stubbed method on a Subscriver"
     SubscriberImpl subscriber = Mock()
 
-    expect:"call to subscriber.receive with message: 'not message1' returns not ok"
-    subscriber.receive("not ok at all") == "not ok"
-    
+    expect:"call to subscriber.receive to not call method on impplementation and return null"
+    subscriber.receive("not ok at all").equals(null)
+
 //    when:
 //    subscriber.receive(_) >> "not ok"
 //
