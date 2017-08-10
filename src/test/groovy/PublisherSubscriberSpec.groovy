@@ -15,6 +15,7 @@
  */
 
 
+import org.spockframework.util.Nullable
 import spock.lang.Ignore
 import spock.lang.IgnoreRest
 import spock.lang.Specification
@@ -35,9 +36,8 @@ interface Subscriber {
   def receive(event)
 }
 
-class SubscriberImpl implements Subscriber{
+class SubscriberImpl {
 
-  @Override
   def receive(event){
     if(event.equals("message1")){
       return "ok"
@@ -113,7 +113,7 @@ class PublisherSpec extends Specification {
 //    }
   }
 
- // Stubbing example. See how it doesn't use a real object since it
+ // Mock method stubbing example. See how it doesn't use a real object since it
   // returns null not the string we expect i.e 'not ok'
   def "Mock stubbed method is not called on the implementation of a class"(){
 
@@ -128,6 +128,29 @@ class PublisherSpec extends Specification {
 //
 //    then:
 //    subscriber.receive("not ok at all") == "not ok"
+  }
+
+  // Stub method stubbing example. See how it doesn't use a real object since it
+  // returns null not the string we expect i.e 'not ok'
+  def "Stub does not call methods on the implementation of a class"(){
+
+    given:"A Stub of SubscriberImpl"
+    SubscriberImpl subscriber = Stub()
+
+    when:"we call receive() on subscriber"
+    def sub = subscriber.receive("not ok at all")
+
+    then:"the expected return value 'not ok' is not returned"
+    sub != "not ok"
+
+//    when:"we stub subscriber to return 'not ok' if message contains 'not' and 'ok' otherwise"
+//    subscriber.receive(_) >> {String message -> message.contains("not")?"not ok":"ok"}
+//
+//    then:"receive returns 'not ok' when the parameter contains 'not'"
+//    subscriber.receive("not ok at all") == "not ok"
+//    and:"receive returns 'ok' when the parameter dosnt contain 'not'"
+//    subscriber.receive("foo") == "ok"
+
   }
 
   def "All spies are based on real object"(){
