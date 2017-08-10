@@ -16,6 +16,7 @@
 
 
 import spock.lang.Ignore
+import spock.lang.IgnoreRest
 import spock.lang.Specification
 
 class Publisher {
@@ -34,6 +35,18 @@ interface Subscriber {
   def receive(event)
 }
 
+class SubscriberImpl implements Subscriber{
+
+  @Override
+  def receive(event){
+    if(event.equals("message1")){
+      return "ok"
+    }else{
+      return "not ok"
+    }
+  }
+}
+
 class PublisherSpec extends Specification {
   def pub
   def sub1
@@ -45,21 +58,16 @@ class PublisherSpec extends Specification {
     sub2 = Mock(Subscriber)
   }
 
-
-//  def setup() {
-//    pub.subscribers << sub1 << sub2
-//  }
-
   def "delivers events to all subscribers"() {
     given:
     pub.subscribers << sub1 << sub2
 
     when:
-    pub.send("event")
+    pub.send("event22")
 
     then:
-    1 * sub1.receive("event")
-    1 * sub2.receive("event")
+    1 * sub1.receive("event22")
+    1 * sub2.receive("ff")
 
     cleanup:
     pub.subscribers = []
@@ -92,5 +100,44 @@ class PublisherSpec extends Specification {
     then:
     def message = "hello"
     1 * sub1.receive(message)
+
+    when:
+    pub.send("hello")
+
+    then:
+    interaction {
+      def message1 = "hello"
+      1 * sub1.receive(message1)
+    }
+  }
+
+  @IgnoreRest
+  def "All spies are based on real object"(){
+    def subscriber
+
+    given:"a Spy of a subscriber implementation"
+    subscriber = Spy(SubscriberImpl)
+
+    and:"the subscriber is added to the publisher"
+    pub.subscribers << subscriber
+
+    when:"publisher sends message1 to subscriber"
+    pub.send("message1")
+
+    then: "recieve is called once on subscriber with arg 'message1'"
+    1 * subscriber.receive("message1")
+
+    and:"it returns 'ok'"
+    subscriber.receive("message1") == "ok"
+
+    when:"publisher sends 'not message1' to subscriber"
+    pub.send("not message1")
+
+    then: "recieve is called on subscriber with 'not message1' as arg"
+    1*subscriber.receive("not message1")
+    and:"it returns not ok"
+    subscriber.receive(_) == "not ok"
+
+
   }
 }

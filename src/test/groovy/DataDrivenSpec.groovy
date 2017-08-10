@@ -44,15 +44,87 @@ class DataDrivenSpec extends Specification {
     person.getSex() == sex
 
     where:
-    person                    || sex
-    new Person(name: "Fred")  || "Male"
-    new Person(name: "Wilma") || "Female"
+    person                      || sex
+    new Person(name: "Fred")    || "Male"
+    new Person(name: "Wilma")   || "Female"
   }
 
-  static class Person {
+    def "person age is changed to #age"(){
+        given:"A person"
+        def p = new Person(name: name)
+
+        when:"we we set person's age ${age}"
+        p.setAge(age)
+
+        then:"we get the correct age"
+        p.age == expectedAge
+
+        where:
+
+        name    |   age ||  expectedAge
+        "Fred"  |   33  ||  33
+        "Tammi" |   33  ||  30
+    }
+
+    def "getAge return age for men"(){
+        given:"A Person"
+        def person = new Person()
+
+        when:"person is a man"
+        person.name = "Fred"
+
+        and:"his age is 20"
+        person.age = 20
+
+        then:"getAge to return 20"
+        person.getAge() == 20
+
+        when:"person is a woman"
+        person.name = "Not Fred"
+        and: "her age is 20"
+
+        person.age = 20
+        then:"getAge to return 17"
+        person.getAge() == 17
+    }
+
+    def "Return correct age for man and fixed age for woman"(){
+        given:
+        def Person person
+
+        when:
+        person = new Person(name: name, age: age)
+
+        then:
+        person.getAge() == expectedAge
+
+        where:
+        name    |   age ||   expectedAge
+        "Fred"  |   33  ||  33
+        "Tammi" |   33  ||  30
+    }
+
+
+
+ class Person {
     String name
+    private int age
+
     String getSex() {
       name == "Fred" ? "Male" : "Female"
     }
+
+    void setAge(int age){
+       this.age = age
+    }
+
+     int getAge(){
+         if(getSex().equals("Male")){
+             return age
+         }else if(getSex().equals("Female")){
+             return (age - 3)
+         }
+         return -1;
+     }
   }
 }
