@@ -111,7 +111,22 @@ class PublisherSpec extends Specification {
     }
   }
 
-  @IgnoreRest
+ // Stubbing example. See how it doesn't use a real object since it
+  // returns null not the string we expect i.e 'not ok'
+  def "Mock stubbed method is not called on the implementation of a class"(){
+    given:"A stubbed method on a Subscriver"
+    SubscriberImpl subscriber = Mock()
+
+    expect:"call to subscriber.receive with message: 'not message1' returns not ok"
+    subscriber.receive("not ok at all") == "not ok"
+    
+//    when:
+//    subscriber.receive(_) >> "not ok"
+//
+//    then:
+//    subscriber.receive("not ok at all") == "not ok"
+  }
+
   def "All spies are based on real object"(){
     def subscriber
 
